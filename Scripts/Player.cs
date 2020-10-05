@@ -15,6 +15,8 @@ public class Player : MonoBehaviour
     float gravityScaleAtStart;
     Animator animator;
 
+    bool isAlive = true;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -28,10 +30,22 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!isAlive)
+            return;
         run();
         flipSprite();
         jump();
         climb();
+        die();
+    }
+
+    private void die() {
+        if (myBodyCollider.IsTouchingLayers(LayerMask.GetMask("Enemy","Hazards"))) {
+            isAlive = false;
+            animator.SetBool("isAlive", false);
+            GetComponent<Rigidbody2D>().velocity = new Vector2(20f, 20f);
+            FindObjectOfType<GameSession>().processPlayerDeath();
+        }
     }
 
     private void climb() {
@@ -84,5 +98,9 @@ public class Player : MonoBehaviour
         else {
             animator.SetBool("isRunning", false);
         }
+    }
+
+    public void disableControls() {
+        isAlive = false;
     }
 }
